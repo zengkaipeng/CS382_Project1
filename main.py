@@ -1,4 +1,4 @@
-from WordCounter import InterpolationModel
+from Models import InterpolationModel
 
 
 def File_Read(train_dir, val_dir, test_dir):

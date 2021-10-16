@@ -1,5 +1,7 @@
 ## README
 
+This project is about the smoothing algorithm of n-gram language model.
+
 Two algorithms are implemented in this project: Add k and Hierarchical Interpolation
 
 - For Add k, you don't need a valid set to train the model

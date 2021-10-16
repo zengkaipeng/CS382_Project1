@@ -26,6 +26,12 @@ class BaseModel(object):
             if nfreq[word] <= self.low_thresold:
                 context[idx] = '<UNK>'
 
+    def mark_unk(self, context):
+        for idx, word in enumerate(context):
+            if word not in self.word_set:
+                context[idx] = '<UNK>'
+        return context
+
     def preprocess(self, context):
         context = self.process_context(context)
         self.word_count(context)
@@ -96,7 +102,7 @@ class AddkModel(BaseModel):
     def get_PPL(self, context):
         context = self.process_context(context)
         context = self.mark_unk(context)
-        ans, context_len = 0 ,len(context)
+        ans, context_len = 0, len(context)
         for i in range(1, min(context_len, self.degree)):
             ans += math.log(self.get_p(tuple(context[: i + 1])))
         for i in range(self.degree, context_len):
@@ -104,7 +110,6 @@ class AddkModel(BaseModel):
             ans += math.log(self.get_p(key))
 
         return math.exp(-ans / (context_len - 1))
-
 
 
 class InterpolationModel(BaseModel):
@@ -122,12 +127,6 @@ class InterpolationModel(BaseModel):
     def clear(self):
         self._clear()
         self.trained = False
-
-    def mark_unk(self, context):
-        for idx, word in enumerate(context):
-            if word not in self.word_set:
-                context[idx] = '<UNK>'
-        return context
 
     def train(self, context, eps=1e-5, verbose=False):
         context = self.process_context(context)

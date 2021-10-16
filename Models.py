@@ -85,6 +85,7 @@ class AddkModel(BaseModel):
         if isinstance(context, str):
             context = tuple(context.split(' '))
         assert len(context) <= self.degree, 'context has higher order than model'
+        context = tuple(i if i in self.word_set else '<UNK>' for i in context)
 
         if len(context) == 1:
             return self.prob.get(context, 0)

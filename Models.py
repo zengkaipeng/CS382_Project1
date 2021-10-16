@@ -71,6 +71,41 @@ class BaseModel(object):
         # print('<s>' in self.word_set, '</s>' in self.word_set)
 
 
+class AddkModel(BaseModel):
+    def __init__(self, degree, context, k=1):
+        super(AddkModel, self).__init__(degree, context)
+        self.k = k
+
+    def set_k(self, k):
+        assert type(k) == int or type(k) == float, "k should be a num"
+        assert 0 < k and k <= 1, "value of k should fall in (0, 1]"
+        self.k = k
+
+    def get_p(self, context):
+        if isinstance(context, str):
+            context = tuple(context.split(' '))
+        assert len(context) <= self.degree, 'context has higher order than model'
+
+        if len(context) == 1:
+            return self.prob.get(context, 0)
+
+        return (self.freq.get(context, 0) + self.k) / \
+            (self.freq.get(context[:-1], 0) + self.k * self.ngram_num[0])
+
+    def get_PPL(self, context):
+        context = self.process_context(context)
+        context = self.mark_unk(context)
+        ans, context_len = 0 ,len(context)
+        for i in range(1, min(context_len, self.degree)):
+            ans += math.log(self.get_p(tuple(context[: i + 1])))
+        for i in range(self.degree, context_len):
+            key = tuple(context[i - self.degree + 1: i + 1])
+            ans += math.log(self.get_p(key))
+
+        return math.exp(-ans / (context_len - 1))
+
+
+
 class InterpolationModel(BaseModel):
     def __init__(self, degree, context):
         super(InterpolationModel, self).__init__(degree, context)
@@ -113,7 +148,7 @@ class InterpolationModel(BaseModel):
     def get_p(self, context):
         if isinstance(context, str):
             context = tuple(context.split(' '))
-        context = tuple([i if i in self.word_set else '<UNK>' for i in context])
+        context = tuple(i if i in self.word_set else '<UNK>' for i in context)
 
         assert len(context) <= self.degree, "context has higher order than model"
         return self._get_p(context, len(context))
@@ -132,7 +167,7 @@ class InterpolationModel(BaseModel):
             key = tuple(context[i - self.degree + 1: i + 1])
             ans += math.log(self._get_p(key, self.degree))
 
-        return math.exp(-ans / (len(context) - 1))
+        return math.exp(-ans / (context_len - 1))
 
     def _get_p(self, context, degree):
         if degree == 1:

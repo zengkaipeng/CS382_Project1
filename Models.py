@@ -80,7 +80,6 @@ class BaseModel(object):
 class AddkModel(BaseModel):
     def __init__(self, degree, context, k=1):
         super(AddkModel, self).__init__(degree, context)
-        print("voca:", len(self.word_set))
         self.k = k
 
     def set_k(self, k):

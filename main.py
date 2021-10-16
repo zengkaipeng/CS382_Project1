@@ -18,8 +18,8 @@ if __name__ == '__main__':
     val_dir = '../data/dev_set.txt'
     test_dir = '../data/test_set.txt'
     train_set, val_set, test_set = File_Read(train_dir, val_dir, test_dir)
-
-    model = AddkModel(degree=3, context=train_set + val_set, k=0.001)
+    """
+    model = AddkModel(degree=3, context=train_set + val_set, k=0.0005)
     print('[INFO] model init done')
     print(model.get_PPL(test_set))
 
@@ -28,4 +28,4 @@ if __name__ == '__main__':
     print('[INFO] model init done')
     model.train(val_set, verbose=True, eps=1e-3)
     print(model.get_PPL(test_set))
-    """
+    

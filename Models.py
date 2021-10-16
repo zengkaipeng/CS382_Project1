@@ -80,6 +80,7 @@ class BaseModel(object):
 class AddkModel(BaseModel):
     def __init__(self, degree, context, k=1):
         super(AddkModel, self).__init__(degree, context)
+        print("voca:", len(self.word_set))
         self.k = k
 
     def set_k(self, k):
@@ -97,7 +98,7 @@ class AddkModel(BaseModel):
             return self.prob.get(context, 0)
 
         return (self.freq.get(context, 0) + self.k) / \
-            (self.freq.get(context[:-1], 0) + self.k * self.ngram_num[0])
+            (self.freq.get(context[:-1], 0) + self.k * len(self.word_set))
 
     def get_PPL(self, context):
         context = self.process_context(context)
@@ -105,6 +106,7 @@ class AddkModel(BaseModel):
         ans, context_len = 0, len(context)
         for i in range(1, min(context_len, self.degree)):
             ans += math.log(self.get_p(tuple(context[: i + 1])))
+        
         for i in range(self.degree, context_len):
             key = tuple(context[i - self.degree + 1: i + 1])
             ans += math.log(self.get_p(key))
